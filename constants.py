@@ -14,4 +14,5 @@ COLORMAP_OPTIONS = [
     "inferno",
     "cividis",
     "Greys",
+    "Blues",
 ]

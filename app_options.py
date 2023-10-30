@@ -119,7 +119,7 @@ def get_options_from_ui() -> Options:
         with tabs[options_categories.index("Display")]:
             mirror = st.toggle("Show Full Beam by Mirroring Half Beam")
 
-            cmap_name = st.selectbox("Colormap", constants.COLORMAP_OPTIONS)
+            cmap_name = st.selectbox("Colormap", constants.COLORMAP_OPTIONS, index=constants.COLORMAP_OPTIONS.index("Blues"))
             cmap = cm.get_cmap(cmap_name)
 
             upscale_factor = st.select_slider("Upscale Factor", options=[1, 2, 4, 8, 16, 32, 64], value=8)

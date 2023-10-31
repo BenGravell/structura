@@ -60,7 +60,7 @@ def get_options_from_ui() -> Options:
             )
             density_initialization_method = st.selectbox(
                 "Density Initialization Method",
-                options=["constant", "random"],
+                options=["random", "constant"],
             )
 
         with tabs[options_categories.index("Constraints")]:
@@ -69,7 +69,7 @@ def get_options_from_ui() -> Options:
                 min_value=0.0,
                 max_value=1.0,
                 step=0.05,
-                value=0.3,
+                value=0.30,
             )
 
         with tabs[options_categories.index("Objective")]:
@@ -84,13 +84,13 @@ def get_options_from_ui() -> Options:
                 min_value=1.0,
                 max_value=5.0,
                 step=0.25,
-                value=2.5,
+                value=1.5,
             )
             penal = st.slider(
                 "Penalty Power",
                 min_value=1.0,
                 max_value=5.0,
-                value=2.5,
+                value=2.0,
                 step=0.25,
                 help=(
                     "Power to which to raise density design variables. Higher values discourage intermediate values"
@@ -117,7 +117,7 @@ def get_options_from_ui() -> Options:
             )
 
         with tabs[options_categories.index("Display")]:
-            mirror = st.toggle("Show Full Beam by Mirroring Half Beam")
+            mirror = st.toggle("Show Full Beam by Mirroring Half Beam", value=True)
 
             cmap_name = st.selectbox(
                 "Colormap", constants.COLORMAP_OPTIONS, index=constants.COLORMAP_OPTIONS.index("Blues")

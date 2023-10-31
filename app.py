@@ -8,9 +8,6 @@ import app_options as ao
 import app_help
 
 
-def optimize_button_callback():
-    st.session_state.solution_frame = optimization.optimize(st.session_state.options, st.session_state.image_container)
-
 
 def main():
     st.set_page_config(page_title="Structura", page_icon="🌉", layout="centered")
@@ -37,7 +34,10 @@ def main():
             st.session_state.image_container = st.empty()
 
         with button_container:
-            st.button("Optimize Structure", on_click=optimize_button_callback)
+            do_optimize = st.button("Optimize Structure")
+            if do_optimize:
+                with st.spinner("Optimizing structure..."):
+                    st.session_state.solution_frame = optimization.optimize(st.session_state.options, st.session_state.image_container)
 
         if st.session_state.get("solution_frame") is not None:
             st.session_state.image_container.image(

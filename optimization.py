@@ -1,4 +1,4 @@
-from time import sleep
+from time import time
 
 import numpy as np
 from scipy.sparse import coo_matrix
@@ -191,6 +191,9 @@ def optimize(options: ao.Options, image_container=None):
     dcdx = np.ones(nely * nelx)
     ce = np.ones(nely * nelx)
 
+    time_of_last_draw = time()
+    time_elapsed_since_last_draw = 0.0
+
     while change > change_tol and loop < max_iters:
         loop = loop + 1
         # Setup and solve FE problem
@@ -257,16 +260,18 @@ def optimize(options: ao.Options, image_container=None):
             )
         )
 
+        
+        time_elapsed_since_last_draw = time() - time_of_last_draw
         frame = None
         if image_container is not None:
-            # Tiny sleep to give streamlit time to draw the frame
-            sleep(0.005)
-            # Draw the frame
-            frame = utils.x2frame(xPhys, nelx, nely, cmap, upscale_factor, upscale_method, mirror)
-            image_container.image(frame, caption=f"Iteration {loop}", use_column_width=True)
-            # Tiny sleep to give streamlit time to draw the frame
-            sleep(0.005)
-
+            if time_elapsed_since_last_draw > constants.DRAW_UPDATE_SEC:
+                # Draw the frame
+                frame = utils.x2frame(xPhys, nelx, nely, cmap, upscale_factor, upscale_method, mirror)
+                image_container.image(frame, caption=f"Iteration {loop}", use_column_width=True)
+                time_of_last_draw = time()
+    
+    # Always compute a frame at the very end to return
+    frame = utils.x2frame(xPhys, nelx, nely, cmap, upscale_factor, upscale_method, mirror)
     return frame
 
 

@@ -36,7 +36,6 @@ def optimality_criterion_based_step(x, g, dcdx, dvdx, move=0.1):
     # Maximum change in design variables permitted
     # NOTE: if x is too far from feasibility and if move is too small,
     # it may cause the bisection to fail to find a suitable multiplier
-    # move = 0.1
 
     # Max iters for bisection search
     max_iters = 10000

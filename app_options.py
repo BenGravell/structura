@@ -1,4 +1,5 @@
 from dataclasses import dataclass, astuple
+from enum import Enum
 from typing import Callable
 
 import matplotlib.cm as cm
@@ -7,10 +8,19 @@ import streamlit as st
 import constants
 
 
+class FilterType(Enum):
+    NO_FILTER = 0
+    DENSITY_FILTER = 1
+    SENSITIVITY_FILTER = 2
+
+    @property
+    def description(self):
+        return FILTER_MAP[self.value]
+
 FILTER_MAP = {
-    0: "No Filter",
-    1: "Density Filter",
-    2: "Sensitivity Filter",
+    FilterType.NO_FILTER: "No Filter",
+    FilterType.DENSITY_FILTER: "Density Filter",
+    FilterType.SENSITIVITY_FILTER: "Sensitivity Filter",
 }
 
 

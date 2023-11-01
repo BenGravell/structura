@@ -37,11 +37,11 @@ def main():
             do_optimize = st.button("Optimize Structure")
             if do_optimize:
                 with st.spinner("Optimizing structure..."):
-                    st.session_state.solution_frame = optimization.optimize(st.session_state.options, st.session_state.image_container)
+                    st.session_state.solution_frame, st.session_state.objective_value = optimization.optimize(st.session_state.options, st.session_state.image_container)
 
         if st.session_state.get("solution_frame") is not None:
             st.session_state.image_container.image(
-                st.session_state.solution_frame, caption="Solution", use_column_width=True
+                st.session_state.solution_frame, caption=f"Solution, Objective = {st.session_state.objective_value:12.3f}", use_column_width=True
             )
 
     with tabs[tab_names.index("Help")]:

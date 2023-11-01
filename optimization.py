@@ -8,6 +8,7 @@ import constants
 import utils
 import math_utils
 import app_options as ao
+from app_options import FilterType
 
 
 def initialize_density(method, nx, ny):
@@ -222,7 +223,7 @@ def optimize(options: ao.Options, image_container=None):
 
         # Objective
         youngs_modulus_elementwise = design_variable_to_youngs_modulus(xPhys, penal)
-        obj = np.sum(youngs_modulus_elementwise * ce)
+        objective_value = np.sum(youngs_modulus_elementwise * ce)
 
         # Sensitivity of objective to design variables i.e. the gradient
         dcdx[:] = (-penal * xPhys ** (penal - 1) * (constants.YOUNGS_MODULUS_MAX - constants.YOUNGS_MODULUS_MIN)) * ce
@@ -231,12 +232,12 @@ def optimize(options: ao.Options, image_container=None):
         dvdx[:] = np.ones(nely * nelx)
 
         # Filtering:
-        if filter_type == 0:
+        if filter_type == FilterType.NO_FILTER:
             pass
-        elif filter_type == 1:
+        elif filter_type == FilterType.DENSITY_FILTER:
             dcdx[:] = np.asarray(H * (dcdx[np.newaxis].T / Hs))[:, 0]
             dvdx[:] = np.asarray(H * (dvdx[np.newaxis].T / Hs))[:, 0]
-        elif filter_type == 2:
+        elif filter_type == FilterType.SENSITIVITY_FILTER:
             dcdx[:] = np.asarray((H * (x * dcdx))[np.newaxis].T / Hs)[:, 0] / np.maximum(0.001, x)
 
         # Optimality criteria
@@ -244,35 +245,28 @@ def optimize(options: ao.Options, image_container=None):
         x[:], g = optimality_criterion_based_step(x, g, dcdx, dvdx, move)
 
         # Filter design variables
-        if filter_type == 0:
+        if filter_type == FilterType.NO_FILTER:
             xPhys[:] = x
-        elif filter_type == 1:
+        elif filter_type == FilterType.DENSITY_FILTER:
             xPhys[:] = np.asarray(H * x[np.newaxis].T / Hs)[:, 0]
-        elif filter_type == 2:
+        elif filter_type == FilterType.SENSITIVITY_FILTER:
             xPhys[:] = x
 
         # Compute the change by the inf norm
         change = np.linalg.norm(x.reshape(nelx * nely, 1) - xold.reshape(nelx * nely, 1), np.inf)
 
-        print(
-            "iter: {0}, objective: {1:.3f}, volume: {2:.3f}, change: {3:.3f}".format(
-                loop, obj, (g + volfrac * nelx * nely) / (nelx * nely), change
-            )
-        )
-
-        
         time_elapsed_since_last_draw = time() - time_of_last_draw
         frame = None
         if image_container is not None:
             if time_elapsed_since_last_draw > constants.DRAW_UPDATE_SEC:
                 # Draw the frame
                 frame = utils.x2frame(xPhys, nelx, nely, cmap, upscale_factor, upscale_method, mirror)
-                image_container.image(frame, caption=f"Iteration {loop}", use_column_width=True)
+                image_container.image(frame, caption=f"Iteration {loop:6d}, Objective = {objective_value:12.3f}", use_column_width=True)
                 time_of_last_draw = time()
     
     # Always compute a frame at the very end to return
     frame = utils.x2frame(xPhys, nelx, nely, cmap, upscale_factor, upscale_method, mirror)
-    return frame
+    return frame, objective_value
 
 
 if __name__ == "__main__":

@@ -1,7 +1,7 @@
 """Structura: A Topology Optimization app."""
 
 import streamlit as st
-from stpyvista import stpyvista
+# from stpyvista import stpyvista
 
 
 import utils

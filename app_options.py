@@ -17,6 +17,7 @@ class FilterType(Enum):
     def description(self):
         return FILTER_MAP[self.value]
 
+
 FILTER_MAP = {
     FilterType.NO_FILTER: "No Filter",
     FilterType.DENSITY_FILTER: "Density Filter",
@@ -134,7 +135,7 @@ def get_options_from_ui() -> Options:
             )
             cmap = cm.get_cmap(cmap_name)
 
-            upscale_factor = st.select_slider("Upscale Factor", options=[1, 2, 4, 8, 16, 32, 64], value=8)
+            upscale_factor = st.select_slider("Upscale Factor", options=[1, 2, 4, 8, 16, 32, 64], value=4)
             upscale_method = st.selectbox("Upscaling Method", options=["NEAREST", "BILINEAR", "BICUBIC", "LANCZOS"])
 
         with form_button_container:

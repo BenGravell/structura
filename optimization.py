@@ -259,13 +259,16 @@ def optimize(options: ao.Options, image_container=None):
         if image_container is not None:
             if time_elapsed_since_last_draw > constants.DRAW_UPDATE_SEC:
                 # Draw the frame
-                frame = utils.x2frame(xPhys, nelx, nely, cmap, upscale_factor, upscale_method, mirror)
-                image_container.image(frame, caption=f"Iteration {loop:6d}, Objective = {objective_value:12.3f}", use_column_width=True)
+                x_disp = utils.clip(utils.reshape(xPhys, nelx, nely))
+                frame = utils.x2frame(x_disp, cmap, upscale_factor, upscale_method, mirror)
+                image_container.image(
+                    frame, caption=f"Iteration {loop:6d}, Objective = {objective_value:12.3f}", use_column_width=True
+                )
                 time_of_last_draw = time()
-    
+
     # Always compute a frame at the very end to return
-    frame = utils.x2frame(xPhys, nelx, nely, cmap, upscale_factor, upscale_method, mirror)
-    return frame, objective_value
+    solution = utils.clip(utils.reshape(xPhys, nelx, nely))
+    return solution, objective_value
 
 
 if __name__ == "__main__":

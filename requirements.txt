@@ -21,5 +21,5 @@ Pillow==10.0.1
 
 # Streamlit libraries for web applications
 streamlit==1.28.0
-streamlit-globe==0.2.1
 streamlit-extras==0.3.4
+stpyvista==0.0.9

@@ -54,6 +54,7 @@ mypy-extensions==1.0.0
 nodeenv==1.8.0
 numpy==1.26.1
 opencv-python==4.8.1.78
+opencv-python-headless==4.8.1.78
 osqp==0.6.3
 packaging==23.2
 pandas==2.1.2

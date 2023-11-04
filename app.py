@@ -1,7 +1,7 @@
 """Structura: A Topology Optimization app."""
 
 import streamlit as st
-# from stpyvista import stpyvista
+from stpyvista import stpyvista
 
 
 import utils
@@ -57,12 +57,17 @@ def main():
                 use_column_width=True,
             )
 
-            # show_3d_model = st.toggle("Show 3D Model")
-            # if show_3d_model:
-            #     with st.spinner("Rendering 3D model..."):
-            #         x, y, z = utils.get_pv_xyz_data(st.session_state.solution, st.session_state.options.mirror)
-            #         plotter = utils.get_pv_plotter(x, y, z)
-            #     stpyvista(plotter, horizontal_align="center", panel_kwargs={"orientation_widget": True})
+            show_3d_model = st.toggle("Show 3D Model")
+            if show_3d_model:
+                st.markdown("""Controls: 
+                            - LMB + Drag: Free Rotate
+                            - Ctrl or Alt + LMB + Drag: Rotate about Center
+                            - Shift + LMB + Drag: Pan
+                            - Scroll: Zoom""")
+                with st.spinner("Rendering 3D model..."):
+                    x, y, z = utils.get_pv_xyz_data(st.session_state.solution, st.session_state.options.mirror)
+                    plotter = utils.get_pv_plotter(x, y, z)
+                stpyvista(plotter, horizontal_align="center", panel_kwargs={"orientation_widget": True})
 
     with tabs[tab_names.index("Help")]:
         app_help.help()

@@ -1,8 +1,7 @@
 """Structura: A Topology Optimization app."""
 
+import pandas as pd
 import streamlit as st
-from stpyvista import stpyvista
-
 
 import utils
 import welcome
@@ -12,7 +11,7 @@ import app_help
 
 
 def main():
-    st.set_page_config(page_title="Structura", page_icon="🌉", layout="centered")
+    st.set_page_config(page_title="Structura", page_icon="🌉", layout="wide")
 
     tab_names = [
         "Welcome",
@@ -57,17 +56,30 @@ def main():
                 use_column_width=True,
             )
 
-            show_3d_model = st.toggle("Show 3D Model")
-            if show_3d_model:
-                st.markdown("""Controls: 
-                            - LMB + Drag: Free Rotate
-                            - Ctrl or Alt + LMB + Drag: Rotate about Center
-                            - Shift + LMB + Drag: Pan
-                            - Scroll: Zoom""")
+            if st.session_state.get("plotter") is None:
+                st.session_state.plotter = None
+
+            do_render_3d_model = st.button("Render 3D Model")
+            if do_render_3d_model:
                 with st.spinner("Rendering 3D model..."):
-                    x, y, z = utils.get_pv_xyz_data(st.session_state.solution, st.session_state.options.mirror)
-                    plotter = utils.get_pv_plotter(x, y, z)
-                stpyvista(plotter, horizontal_align="center", panel_kwargs={"orientation_widget": True})
+                    st.session_state.plotter = utils.get_pv_plotter(st.session_state.solution, st.session_state.options.mirror, st.session_state.options.cmap)
+            try:
+                from stpyvista import stpyvista
+            except ImportError as exc:
+                st.exception(exc)
+
+
+            st.caption("PyVista 3D Viewer Controls")
+            pyvista_3d_viewer_controls_df = pd.DataFrame.from_dict({
+                "Control": ["LMB + Drag", "Ctrl or Alt + LMB + Drag", "Shift + LMB + Drag", "Scroll"],
+                "Description": ["Free Rotate", "Rotate about Center", "Pan", "Zoom"],
+            }).set_index("Control")
+            st.dataframe(pyvista_3d_viewer_controls_df)
+
+            plotter = st.session_state.get("plotter")
+            if plotter is not None:
+                stpyvista(st.session_state.plotter, horizontal_align="left", panel_kwargs={"orientation_widget": True})
+
 
     with tabs[tab_names.index("Help")]:
         app_help.help()

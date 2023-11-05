@@ -42,7 +42,7 @@ def x2frame(x, cmap=None, upscale_factor=1, upscale_method="NEAREST", mirror=Fal
     return frame
 
 
-def get_pv_xyz_data(depth_data_in, mirror=False, threshold=0.01):
+def get_pv_plotter(depth_data_in, mirror=False, cmap=None):
     z = np.copy(depth_data_in)
 
     if mirror:
@@ -52,31 +52,51 @@ def get_pv_xyz_data(depth_data_in, mirror=False, threshold=0.01):
     z = np.flipud(z)
 
     # Create coordinate data
-    SCALE = 5
-    nx, ny = z.shape
-    xg = SCALE * np.arange(ny) / nx
-    yg = SCALE * np.arange(nx) / nx
-    x, y = np.meshgrid(xg, yg)
+    SCALE = 40
+    ny, nx = z.shape
+    nmax = max(nx, ny)
 
-    x[z < threshold] = None
-    y[z < threshold] = None
-    z[z < threshold] = None
+    # Normalize dimensions by the max dimension to get unitless dimensions
+    nxu = nx / nmax
+    nyu = ny / nmax
 
-    return x, y, z
+    ux = np.linspace(0, SCALE * nxu, nx+1)
+    uy = np.linspace(0, SCALE * nyu, ny+1)
 
+    # Thickness resolution
+    nz = 20
+    uz = np.linspace(-1, 1, 2*nz + 1)
 
-def get_pv_plotter(x, y, z):
+    mux, muy, muz = np.meshgrid(ux, uy, uz)
+    mesh = pv.StructuredGrid(mux, muy, muz)
+
+    mask = np.abs((muz[:-1, :-1, :-1] + muz[:-1, :-1, 1:]) / 2) > z[:, :, None]
+    flat_mask = mask.flatten(order="F")
+
+    # Thickness scalar values for cells
+    thickness = np.repeat(z[:, :, None], 2*nz, -1).flatten(order="F")
+
+    mesh["Thickness"] = thickness
+
+    # Cast the StructuredGrid mesh to an UnstructuredGrid
+    # NOTE: This is required for the remove_cells() method to work.
+    mesh = mesh.cast_to_unstructured_grid()
+    # Remove cells corresponding to areas where there is no thickness
+    mesh = mesh.remove_cells(flat_mask)
+
     # Set up plotter
     plotter = pv.Plotter()
 
-    # Add surface meshes
-    surface_up = pv.StructuredGrid(x, y, z)
-    surface_dn = pv.StructuredGrid(x, y, -z)
-    for surface in [surface_up, surface_dn]:
-        plotter.add_mesh(surface, color=[224, 224, 224], show_edges=False)
+    # Add mesh
+    add_mesh_kwargs = dict(scalars="Thickness", show_edges=False, edge_color="black")
+    if cmap is None:
+        add_mesh_kwargs["color"] = "white"
+    else:
+        add_mesh_kwargs["cmap"] = cmap
+    plotter.add_mesh(mesh, **add_mesh_kwargs)
 
     # Final touches
-    plotter.window_size = [640, 360]
+    plotter.window_size = [1000, 400]
     plotter.background_color = "white"
     plotter.camera.zoom(3.0)
     plotter.enable_parallel_projection()

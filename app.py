@@ -62,24 +62,26 @@ def main():
             do_render_3d_model = st.button("Render 3D Model")
             if do_render_3d_model:
                 with st.spinner("Rendering 3D model..."):
-                    st.session_state.plotter = utils.get_pv_plotter(st.session_state.solution, st.session_state.options.mirror, st.session_state.options.cmap)
+                    st.session_state.plotter = utils.get_pv_plotter(
+                        st.session_state.solution, st.session_state.options.mirror, st.session_state.options.cmap
+                    )
             try:
                 from stpyvista import stpyvista
             except ImportError as exc:
                 st.exception(exc)
 
-
             st.caption("PyVista 3D Viewer Controls")
-            pyvista_3d_viewer_controls_df = pd.DataFrame.from_dict({
-                "Control": ["LMB + Drag", "Ctrl or Alt + LMB + Drag", "Shift + LMB + Drag", "Scroll"],
-                "Description": ["Free Rotate", "Rotate about Center", "Pan", "Zoom"],
-            }).set_index("Control")
+            pyvista_3d_viewer_controls_df = pd.DataFrame.from_dict(
+                {
+                    "Control": ["LMB + Drag", "Ctrl or Alt + LMB + Drag", "Shift + LMB + Drag", "Scroll"],
+                    "Description": ["Free Rotate", "Rotate about Center", "Pan", "Zoom"],
+                }
+            ).set_index("Control")
             st.dataframe(pyvista_3d_viewer_controls_df)
 
             plotter = st.session_state.get("plotter")
             if plotter is not None:
                 stpyvista(st.session_state.plotter, horizontal_align="left", panel_kwargs={"orientation_widget": True})
-
 
     with tabs[tab_names.index("Help")]:
         app_help.help()

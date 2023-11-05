@@ -114,7 +114,7 @@ def get_options_from_ui() -> Options:
             move = st.select_slider(
                 "Design Variable Change Max per Iteration",
                 options=[0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0],
-                value=0.2
+                value=0.2,
             )
             change_tol = st.select_slider(
                 "Design Variable Change Convergence Tolerance",

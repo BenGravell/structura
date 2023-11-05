@@ -60,12 +60,12 @@ def get_pv_plotter(depth_data_in, mirror=False, cmap=None):
     nxu = nx / nmax
     nyu = ny / nmax
 
-    ux = np.linspace(0, SCALE * nxu, nx+1)
-    uy = np.linspace(0, SCALE * nyu, ny+1)
+    ux = np.linspace(0, SCALE * nxu, nx + 1)
+    uy = np.linspace(0, SCALE * nyu, ny + 1)
 
     # Thickness resolution
     nz = 20
-    uz = np.linspace(-1, 1, 2*nz + 1)
+    uz = np.linspace(-1, 1, 2 * nz + 1)
 
     mux, muy, muz = np.meshgrid(ux, uy, uz)
     mesh = pv.StructuredGrid(mux, muy, muz)
@@ -74,7 +74,7 @@ def get_pv_plotter(depth_data_in, mirror=False, cmap=None):
     flat_mask = mask.flatten(order="F")
 
     # Thickness scalar values for cells
-    thickness = np.repeat(z[:, :, None], 2*nz, -1).flatten(order="F")
+    thickness = np.repeat(z[:, :, None], 2 * nz, -1).flatten(order="F")
 
     mesh["Thickness"] = thickness
 

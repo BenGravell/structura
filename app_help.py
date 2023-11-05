@@ -3,14 +3,15 @@ import streamlit as st
 
 def help():
     st.header("Problem Setup", anchor=False)
-    st.markdown(
-        "The problem setup is the symmetric Messerschmitt-Bölkow-Blohm (MBB) beam, which represents half of a simply"
-        " supported beam with a center point load. The full beam is cut in half and the cut is replaced with a boundary"
-        " condition with horizontal restraint and vertical translation free."
-    )
-    st.image(
-        "assets/smbb_domain.png",
-        caption=(
-            "The design domain, boundary conditions, and external load for the optimization of a symmetric MBB beam."
-        ),
-    )
+    cols = st.columns([2, 2])
+    with cols[0]:
+        with open("help/problem_setup.md", mode='r', encoding='utf-8') as f:
+            st.markdown(f.read())
+    with cols[1]:
+        st.image(
+            "assets/smbb_domain.png",
+            caption=(
+                "The design domain, boundary conditions, and external load for the optimization of a symmetric MBB beam."
+            ),
+            use_column_width=True,
+        )

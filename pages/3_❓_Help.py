@@ -1,7 +1,9 @@
 import streamlit as st
 
+from app_manager import AppManager
 
-def help():
+
+def run():
     st.header("Problem Setup", anchor=False)
     cols = st.columns([2, 2])
     with cols[0]:
@@ -16,3 +18,8 @@ def help():
             ),
             use_column_width=True,
         )
+
+
+if __name__ == "__main__":
+    with AppManager():
+        run()

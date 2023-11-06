@@ -1,4 +1,8 @@
+"""Structura: A Topology Optimization app."""
+
 import streamlit as st
+
+from app_manager import AppManager
 
 
 def run():
@@ -16,3 +20,10 @@ def run():
 
     with cols[1]:
         st.image("assets/welcome.jpg")
+
+    st.info("Explore the other pages in the sidebar!", icon="↩️")
+
+
+if __name__ == "__main__":
+    with AppManager():
+        run()

@@ -42,7 +42,7 @@ def x2frame(x, cmap=None, upscale_factor=1, upscale_method="NEAREST", mirror=Fal
     return frame
 
 
-def get_pv_plotter(depth_data_in, mirror=False, cmap=None):
+def get_pv_plotter(depth_data_in, mirror=False, cmap=None, show_edges=False, thickness_resolution=10):
     z = np.copy(depth_data_in)
 
     if mirror:
@@ -63,8 +63,7 @@ def get_pv_plotter(depth_data_in, mirror=False, cmap=None):
     ux = np.linspace(0, SCALE * nxu, nx + 1)
     uy = np.linspace(0, SCALE * nyu, ny + 1)
 
-    # Thickness resolution
-    nz = 20
+    nz = thickness_resolution
     uz = np.linspace(-1, 1, 2 * nz + 1)
 
     mux, muy, muz = np.meshgrid(ux, uy, uz)
@@ -73,10 +72,12 @@ def get_pv_plotter(depth_data_in, mirror=False, cmap=None):
     mask = np.abs((muz[:-1, :-1, :-1] + muz[:-1, :-1, 1:]) / 2) > z[:, :, None]
     flat_mask = mask.flatten(order="F")
 
-    # Thickness scalar values for cells
-    thickness = np.repeat(z[:, :, None], 2 * nz, -1).flatten(order="F")
+    if cmap is not None:
+        # We only need the thickness values if we are going to be displaying them via cmap coloring.
+        # Thickness scalar values for cells
+        thickness = np.repeat(z[:, :, None], 2 * nz, -1).flatten(order="F")
 
-    mesh["Thickness"] = thickness
+        mesh["Thickness"] = thickness
 
     # Cast the StructuredGrid mesh to an UnstructuredGrid
     # NOTE: This is required for the remove_cells() method to work.
@@ -88,12 +89,13 @@ def get_pv_plotter(depth_data_in, mirror=False, cmap=None):
     plotter = pv.Plotter()
 
     # Add mesh
-    add_mesh_kwargs = dict(scalars="Thickness", show_edges=False, edge_color="black")
+    pv_kwargs = dict(show_edges=show_edges, edge_color="black")
     if cmap is None:
-        add_mesh_kwargs["color"] = "white"
+        pv_kwargs["color"] = "white"
     else:
-        add_mesh_kwargs["cmap"] = cmap
-    plotter.add_mesh(mesh, **add_mesh_kwargs)
+        pv_kwargs["cmap"] = cmap
+        pv_kwargs["scalars"] = "Thickness"
+    plotter.add_mesh(mesh, **pv_kwargs)
 
     # Final touches
     plotter.window_size = [1000, 400]

@@ -27,19 +27,19 @@ FILTER_MAP = {
 
 @dataclass
 class Options:
-    nel: int = 1000
-    volfrac: float = 0.4
-    rmin: float = 3.0
-    penal: float = 3.0
-    filter_type: int = 0
-    density_initialization_method: str = "constant"
+    nel: int = 2000
+    volfrac: float = 0.3
+    rmin: float = 1.5
+    penal: float = 2.0
+    filter_type: int = 1
+    density_initialization_method: str = "random"
     move: float = 0.2
-    change_tol: float = 0.05
-    max_iters: int = 200
+    change_tol: float = 0.01
+    max_iters: int = 100
     cmap: Callable | None = None
-    upscale_factor: int = 1
-    upscale_method: str | None = None
-    mirror: bool = False
+    upscale_factor: int = 4
+    upscale_method: str = "NEAREST"
+    mirror: bool = True
 
     def unpack(self):
         return list(astuple(self))

@@ -3,6 +3,7 @@ from time import time
 import numpy as np
 from scipy.sparse import coo_matrix
 from scipy.sparse.linalg import spsolve
+import streamlit as st
 
 import constants
 import utils
@@ -94,7 +95,7 @@ def design_variable_to_youngs_modulus(x, penal):
     return constants.YOUNGS_MODULUS_MIN + x**penal * (constants.YOUNGS_MODULUS_MAX - constants.YOUNGS_MODULUS_MIN)
 
 
-def optimize(options: ao.Options, image_container=None):
+def optimize(options: ao.Options, design_monitor_container=None):
     (
         nel,
         volfrac,
@@ -185,7 +186,7 @@ def optimize(options: ao.Options, image_container=None):
     f[1, 0] = -1
 
     # Set loop counter and gradient vectors
-    loop = 0
+    loop_count = 0
     change = 1e9
     dvdx = np.ones(nely * nelx)
     dcdx = np.ones(nely * nelx)
@@ -194,8 +195,25 @@ def optimize(options: ao.Options, image_container=None):
     time_of_last_draw = time()
     time_elapsed_since_last_draw = 0.0
 
-    while change > change_tol and loop < max_iters:
-        loop = loop + 1
+    if design_monitor_container is not None:
+        with design_monitor_container:
+            cols = st.columns(2)
+            with cols[0]:
+                metric1_empty = st.empty()
+            with cols[1]:
+                metric2_empty = st.empty()
+            image_empty = st.empty()
+
+    def update_design_monitor(x_disp, objective_value, loop_count):
+        frame = utils.x2frame(x_disp, cmap, upscale_factor, upscale_method, mirror)
+
+        metric1_empty.metric("Total Objective", round(objective_value, 3))
+        metric2_empty.metric("Iteration", loop_count)
+
+        image_empty.image(frame, use_column_width=True)
+
+    while change > change_tol and loop_count < max_iters:
+        loop_count = loop_count + 1
         # Setup and solve FE problem
 
         # Sparse stiffness matrix data
@@ -254,21 +272,17 @@ def optimize(options: ao.Options, image_container=None):
         # Compute the change by the inf norm
         change = np.linalg.norm(x.reshape(nelx * nely, 1) - xold.reshape(nelx * nely, 1), np.inf)
 
+        x_disp = utils.clip(utils.reshape(xPhys, nelx, nely))
         time_elapsed_since_last_draw = time() - time_of_last_draw
-        frame = None
-        if image_container is not None:
+        if design_monitor_container is not None:
             if time_elapsed_since_last_draw > constants.DRAW_UPDATE_SEC:
-                # Draw the frame
-                x_disp = utils.clip(utils.reshape(xPhys, nelx, nely))
-                frame = utils.x2frame(x_disp, cmap, upscale_factor, upscale_method, mirror)
-                image_container.image(
-                    frame, caption=f"Iteration {loop:6d}, Objective = {objective_value:12.3f}", use_column_width=True
-                )
+                update_design_monitor(x_disp, objective_value, loop_count)
                 time_of_last_draw = time()
 
-    # Always compute a frame at the very end to return
-    solution = utils.clip(utils.reshape(xPhys, nelx, nely))
-    return solution, objective_value
+    # Always draw a frame at the very end
+    update_design_monitor(x_disp, objective_value, loop_count)
+
+    return x_disp, objective_value
 
 
 if __name__ == "__main__":

@@ -82,6 +82,9 @@ def run():
                 st.exception(exc)
 
         if import_ok:
+            # Start virtual frame buffer to avoid error & server crash with xserver not running.
+            pyvista.start_xvfb()
+
             do_render_3d_model = st.button("Render 3D Model")
             if do_render_3d_model:
                 with st.spinner("Rendering 3D model..."):

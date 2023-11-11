@@ -108,11 +108,11 @@ soupsieve==2.5
 st-annotated-text==4.0.1
 stack-data==0.6.3
 stpyvista==0.0.9
-streamlit==1.28.0
+streamlit==1.28.1
 streamlit-camera-input-live==0.2.0
 streamlit-card==0.0.61
 streamlit-embedcode==0.1.2
-streamlit-extras==0.3.4
+streamlit-extras==0.3.5
 streamlit-faker==0.0.3
 streamlit-globe==0.2.1
 streamlit-image-coordinates==0.1.6

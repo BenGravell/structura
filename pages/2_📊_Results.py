@@ -61,30 +61,42 @@ def run():
             ).set_index("Control")
             st.dataframe(pyvista_3d_viewer_controls_df, use_container_width=True)
 
-        do_render_3d_model = st.button("Render 3D Model")
-        if do_render_3d_model:
-            with st.spinner("Rendering 3D model..."):
-                cmap_for_3d_model = st.session_state.options.cmap if use_cmap else None
-
-                st.session_state.plotter = utils.get_pv_plotter(
-                    st.session_state.solution,
-                    st.session_state.options.mirror,
-                    cmap_for_3d_model,
-                    show_edges,
-                    thickness_resolution,
-                )
-
+        import_ok = False
         try:
-            from stpyvista import stpyvista
+            import pyvista  # noqa
+            import stpyvista  # noqa
 
-            if (plotter := st.session_state.get("plotter")) is not None:
-                stpyvista(plotter, horizontal_align="left", panel_kwargs={"orientation_widget": True})
-
+            import_ok = True
         except ImportError as exc:
-            with st.expander("stpyvista import error", expanded=False):
-                st.write("Failed to import stypvista with the following exception. 3D model cannot be rendered.")
+            with st.expander("`pyvista` import error", expanded=False):
+                st.info(
+                    "There is a known issue with Streamlit Community Cloud that prevents certain package dependencies"
+                    " required for `pyvista` from being imported correctly. See"
+                    " https://docs.streamlit.io/knowledge-base/dependencies/libgl. Fixes & workarounds are being"
+                    " explored. Try running the app locally in the meantime."
+                )
+                st.write(
+                    "Failed to import `pyvista` or `stypvista` with the following exception. 3D model cannot be"
+                    " rendered."
+                )
                 st.exception(exc)
 
+        if import_ok:
+            do_render_3d_model = st.button("Render 3D Model")
+            if do_render_3d_model:
+                with st.spinner("Rendering 3D model..."):
+                    cmap_for_3d_model = st.session_state.options.cmap if use_cmap else None
+
+                    st.session_state.plotter = utils.get_pv_plotter(
+                        st.session_state.solution,
+                        st.session_state.options.mirror,
+                        cmap_for_3d_model,
+                        show_edges,
+                        thickness_resolution,
+                    )
+
+            if (plotter := st.session_state.get("plotter")) is not None:
+                stpyvista.stpyvista(plotter, horizontal_align="left", panel_kwargs={"orientation_widget": True})
     else:
         st.info("No structure design found. Try using the tools on the Structure Design page to create a design!")
 

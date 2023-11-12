@@ -128,9 +128,27 @@ def optimize(options: ao.Options, x_init=None, design_monitor: DesignMonitor | N
 
     x = np.copy(x_init)
 
-    # Ensure the initial density is feasible
+    # Ensure the initial density is feasible.
+    # The strategy is to add constant uniform thickness if the volume fraction is too low,
+    # or to reduce the existing thickness if the volume fraction is too high.
+
+    # Initial rescaling - may produce densities >= 1
     volfrac_x = x.sum() / x.size
     x *= volfrac / volfrac_x
+
+    # Clip & add shear web
+    x = np.clip(x, 0, 1)
+    volfrac_x = x.sum() / x.size
+    delta_volfrac = volfrac_x - volfrac
+
+    if delta_volfrac < 0:
+        import streamlit as st
+
+        st.toast("Volume fraction was too low, adding uniform shear web to initial design!")
+        n = nelx * nely
+        u = np.ones(n, dtype=float)
+        u /= n
+        x += abs(delta_volfrac) * u
 
     xold = x.copy()
     xPhys = x.copy()

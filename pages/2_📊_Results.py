@@ -83,7 +83,12 @@ def run():
 
         if import_ok:
             # Start virtual frame buffer to avoid error & server crash with xserver not running.
-            pyvista.start_xvfb()
+            # This needed for headless deployments running on Linux servers e.g. Streamlit Community Cloud.
+            try:
+                pyvista.start_xvfb()
+            except OSError:
+                # Need to handle OSError for when the app is running in non-Linux environments e.g. Windows.
+                pass
 
             do_render_3d_model = st.button("Render 3D Model")
             if do_render_3d_model:

@@ -71,7 +71,11 @@ def get_options_from_ui() -> Options:
             )
             density_initialization_method = st.selectbox(
                 "Density Initialization Method",
-                options=["random", "constant"],
+                options=["continue", "random", "constant"],
+                help=(
+                    'The option "continue" will continue from the existing solution if available, otherwise will use'
+                    ' "random".'
+                ),
             )
 
         with tabs[options_categories.index("Constraints")]:

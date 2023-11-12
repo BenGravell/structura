@@ -3,13 +3,13 @@ from time import time
 import numpy as np
 from scipy.sparse import coo_matrix
 from scipy.sparse.linalg import spsolve
-import streamlit as st
 
 import constants
 import utils
 import math_utils
 import app_options as ao
 from app_options import FilterType
+from ui.design_monitor import DesignMonitor
 
 
 def initialize_density(method, nx, ny):
@@ -95,7 +95,7 @@ def design_variable_to_youngs_modulus(x, penal):
     return constants.YOUNGS_MODULUS_MIN + x**penal * (constants.YOUNGS_MODULUS_MAX - constants.YOUNGS_MODULUS_MIN)
 
 
-def optimize(options: ao.Options, design_monitor_container=None):
+def optimize(options: ao.Options, x_init=None, design_monitor: DesignMonitor | None = None):
     (
         nel,
         volfrac,
@@ -111,6 +111,7 @@ def optimize(options: ao.Options, design_monitor_container=None):
         upscale_method,
         mirror,
     ) = options.unpack()
+
     nelx, nely = math_utils.compute_rectangle_dims_from_area(nel, ratio=3)
 
     # dofs:
@@ -118,8 +119,14 @@ def optimize(options: ao.Options, design_monitor_container=None):
     n_dof_y = nely + 1
     n_dof = 2 * n_dof_x * n_dof_y
 
-    # Allocate design variables (as array), initialize and allocate sens.
-    x = initialize_density(density_initialization_method, nelx, nely)
+    # Initialize density
+    if density_initialization_method != "continue":
+        x_init = initialize_density(density_initialization_method, nelx, nely)
+
+    elif x_init is None:
+        x_init = initialize_density("random", nelx, nely)
+
+    x = np.copy(x_init)
 
     # Ensure the initial density is feasible
     volfrac_x = x.sum() / x.size
@@ -195,23 +202,6 @@ def optimize(options: ao.Options, design_monitor_container=None):
     time_of_last_draw = time()
     time_elapsed_since_last_draw = 0.0
 
-    if design_monitor_container is not None:
-        with design_monitor_container:
-            cols = st.columns(2)
-            with cols[0]:
-                metric1_empty = st.empty()
-            with cols[1]:
-                metric2_empty = st.empty()
-            image_empty = st.empty()
-
-    def update_design_monitor(x_disp, objective_value, loop_count):
-        frame = utils.x2frame(x_disp, cmap, upscale_factor, upscale_method, mirror)
-
-        metric1_empty.metric("Total Objective", round(objective_value, 3))
-        metric2_empty.metric("Iteration", loop_count)
-
-        image_empty.image(frame, use_column_width=True)
-
     while change > change_tol and loop_count < max_iters:
         loop_count = loop_count + 1
         # Setup and solve FE problem
@@ -273,16 +263,54 @@ def optimize(options: ao.Options, design_monitor_container=None):
         change = np.linalg.norm(x.reshape(nelx * nely, 1) - xold.reshape(nelx * nely, 1), np.inf)
 
         x_disp = utils.clip(utils.reshape(xPhys, nelx, nely))
+
         time_elapsed_since_last_draw = time() - time_of_last_draw
-        if design_monitor_container is not None:
+        if design_monitor is not None:
             if time_elapsed_since_last_draw > constants.DRAW_UPDATE_SEC:
-                update_design_monitor(x_disp, objective_value, loop_count)
+                frame = utils.x2frame(x_disp, cmap, upscale_factor, upscale_method, mirror)
+                design_monitor.update(frame, objective_value, loop_count)
                 time_of_last_draw = time()
 
     # Always draw a frame at the very end
-    update_design_monitor(x_disp, objective_value, loop_count)
+    if design_monitor is not None:
+        frame = utils.x2frame(x_disp, cmap, upscale_factor, upscale_method, mirror)
+        design_monitor.update(frame, objective_value, loop_count)
 
-    return x_disp, objective_value
+    return x, x_disp, objective_value
+
+
+def randomize(options: ao.Options, x_init=None, design_monitor: DesignMonitor | None = None):
+    (
+        nel,
+        volfrac,
+        rmin,
+        penal,
+        filter_type,
+        density_initialization_method,
+        move,
+        change_tol,
+        max_iters,
+        cmap,
+        upscale_factor,
+        upscale_method,
+        mirror,
+    ) = options.unpack()
+
+    nelx, nely = math_utils.compute_rectangle_dims_from_area(nel, ratio=3)
+
+    x = np.copy(x_init)
+
+    x += 0.05 * np.random.uniform(low=-1, high=1, size=nelx * nely)
+    x = utils.clip(x)
+
+    x_disp = utils.clip(utils.reshape(x, nelx, nely))
+
+    frame = utils.x2frame(x_disp, cmap, upscale_factor, upscale_method, mirror)
+    objective_value = None
+    loop_count = None
+    design_monitor.update(frame, objective_value, loop_count)
+
+    return x, x_disp, objective_value
 
 
 if __name__ == "__main__":

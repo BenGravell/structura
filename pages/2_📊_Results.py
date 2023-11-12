@@ -6,9 +6,9 @@ from app_manager import AppManager
 
 
 def run():
-    if st.session_state.get("solution") is not None:
+    if st.session_state.get("solution_for_display") is not None:
         solution_frame = utils.x2frame(
-            st.session_state.solution,
+            st.session_state.solution_for_display,
             st.session_state.options.cmap,
             st.session_state.options.upscale_factor,
             st.session_state.options.upscale_method,
@@ -91,7 +91,7 @@ def run():
                     cmap_for_3d_model = st.session_state.options.cmap if use_cmap else None
 
                     st.session_state.plotter = utils.get_pv_plotter(
-                        st.session_state.solution,
+                        st.session_state.solution_for_display,
                         st.session_state.options.mirror,
                         cmap_for_3d_model,
                         show_edges,

@@ -98,7 +98,7 @@ def get_options_from_ui() -> Options:
                 "Filter Radius",
                 min_value=1.0,
                 max_value=5.0,
-                step=0.25,
+                step=0.1,
                 value=1.5,
             )
             penal = st.slider(
@@ -106,7 +106,7 @@ def get_options_from_ui() -> Options:
                 min_value=1.0,
                 max_value=5.0,
                 value=2.0,
-                step=0.25,
+                step=0.1,
                 help=(
                     "Power to which to raise density design variables. Higher values discourage intermediate values"
                     " more heavily, but tend to lock the optimizer into local minima with fine structural details that"
@@ -127,7 +127,7 @@ def get_options_from_ui() -> Options:
             )
             max_iters = st.select_slider(
                 "Max Iterations",
-                options=[10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
+                options=[1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
                 value=100,
             )
 

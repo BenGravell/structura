@@ -98,7 +98,6 @@ def get_pv_plotter(depth_data_in, mirror=False, cmap=None, show_edges=False, thi
     plotter.add_mesh(mesh, **pv_kwargs)
 
     # Final touches
-    plotter.window_size = [1000, 400]
     plotter.background_color = "white"
     plotter.camera.zoom(3.0)
     plotter.enable_parallel_projection()

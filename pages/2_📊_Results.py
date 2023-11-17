@@ -76,7 +76,7 @@ def run():
                 )
 
         if (plotter := st.session_state.get("plotter")) is not None:
-            stpyvista.stpyvista(plotter, horizontal_align="left", panel_kwargs={"orientation_widget": True})
+            stpyvista.stpyvista(plotter, horizontal_align="center", panel_kwargs={"orientation_widget": True})
     else:
         st.info("No structure design found. Try using the tools on the Structure Design page to create a design!")
 

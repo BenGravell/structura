@@ -3,6 +3,7 @@ from time import time
 import numpy as np
 from scipy.sparse import coo_matrix
 from scipy.sparse.linalg import spsolve
+from scipy.interpolate import RegularGridInterpolator
 
 import constants
 import utils
@@ -21,6 +22,28 @@ def initialize_density(method, nx, ny):
     else:
         raise ValueError(f"Invalid density initialization method {method}.")
     return x
+
+
+def interp(z, nx_new, ny_new, method="linear"):
+    nx, ny = z.shape
+    lx, ly = 3.0, 1.0
+
+    # Create original grid coordinates
+    x = np.linspace(0.0, lx, nx)
+    y = np.linspace(0.0, ly, ny)
+
+    # Create interpolator
+    interp = RegularGridInterpolator((x, y), z, method=method)
+
+    # Create new grid
+    xx = np.linspace(0.0, lx, nx_new)
+    yy = np.linspace(0.0, ly, ny_new)
+    X, Y = np.meshgrid(xx, yy, indexing="ij")
+
+    # Interpolate
+    zz = interp((X, Y))
+
+    return zz
 
 
 def optimality_criterion_based_step(x, g, dcdx, dvdx, move=0.1):
@@ -123,8 +146,16 @@ def optimize(options: ao.Options, x_init=None, design_monitor: DesignMonitor | N
     if density_initialization_method != "continue":
         x_init = initialize_density(density_initialization_method, nelx, nely)
 
-    elif x_init is None:
+    if x_init is None:
         x_init = initialize_density("random", nelx, nely)
+
+    # Handle dimension mismatch
+    nely_x_init = int((x_init.size / 3) ** 0.5)
+    nelx_x_init = 3 * nely_x_init
+    x_init_2d = x_init.reshape((nelx_x_init, nely_x_init))
+    if nelx_x_init != nelx or nely_x_init != nely:
+        x_init_2d = interp(x_init_2d, nelx, nely)
+        x_init = x_init_2d.flatten()
 
     x = np.copy(x_init)
 
@@ -318,7 +349,7 @@ def randomize(options: ao.Options, x_init=None, design_monitor: DesignMonitor | 
 
     x = np.copy(x_init)
 
-    x += 0.05 * np.random.uniform(low=-1, high=1, size=nelx * nely)
+    x += 0.1 * np.random.uniform(low=-1, high=1, size=nelx * nely)
     x = utils.clip(x)
 
     x_disp = utils.clip(utils.reshape(x, nelx, nely))

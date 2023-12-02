@@ -51,6 +51,8 @@ def options_update_button_callback():
 
 def get_options_from_ui() -> Options:
     with st.form("options_form"):
+        st.subheader("Design Options", anchor=False)
+
         form_button_container = st.container()
 
         options_categories = [

@@ -31,10 +31,13 @@ def randomize(design_monitor):
 
 
 def run():
-    st.subheader("Design Options", anchor=False)
     st.session_state.options = ao.get_options_from_ui()
 
-    tools_container, monitor_container = st.columns([2, 4])
+    tools_column, monitor_column = st.columns([2, 4])
+    with tools_column:
+        tools_container = st.container(border=True)
+    with monitor_column:
+        monitor_container = st.container(border=True)
 
     with tools_container:
         st.subheader("Design Tools", anchor=False)

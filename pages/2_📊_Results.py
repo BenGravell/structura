@@ -30,8 +30,8 @@ def run():
         cols = st.columns(2)
 
         with cols[0]:
-            st.subheader("3D Model Options", anchor=False)
             with st.form("3d_model_options"):
+                st.subheader("3D Model Options", anchor=False)
                 use_cmap = st.toggle(
                     "Use Colormap",
                     value=True,
@@ -53,14 +53,15 @@ def run():
                 st.form_submit_button("Update 3D Model Options")
 
         with cols[1]:
-            st.subheader("3D Viewer Controls", anchor=False)
-            pyvista_3d_viewer_controls_df = pd.DataFrame.from_dict(
-                {
-                    "Control": ["LMB + Drag", "Ctrl or Alt + LMB + Drag", "Shift + LMB + Drag", "Scroll"],
-                    "Description": ["Free Rotate", "Rotate about Center", "Pan", "Zoom"],
-                }
-            ).set_index("Control")
-            st.dataframe(pyvista_3d_viewer_controls_df, use_container_width=True)
+            with st.container(border=True):
+                st.subheader("3D Viewer Controls", anchor=False)
+                pyvista_3d_viewer_controls_df = pd.DataFrame.from_dict(
+                    {
+                        "Control": ["LMB + Drag", "Ctrl or Alt + LMB + Drag", "Shift + LMB + Drag", "Scroll"],
+                        "Description": ["Free Rotate", "Rotate about Center", "Pan", "Zoom"],
+                    }
+                ).set_index("Control")
+                st.dataframe(pyvista_3d_viewer_controls_df, use_container_width=True)
 
         do_render_3d_model = st.button("Render 3D Model")
         if do_render_3d_model:

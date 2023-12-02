@@ -5,11 +5,10 @@ from app_manager import AppManager
 
 def run():
     st.header("Problem Setup", anchor=False)
-    cols = st.columns([2, 2])
-    with cols[0]:
-        with open("help/problem_setup.md", mode="r", encoding="utf-8") as f:
-            st.markdown(f.read())
-    with cols[1]:
+    with open("help/problem_setup.md", mode="r", encoding="utf-8") as f:
+        st.markdown(f.read())
+    image_col = st.columns([1, 2, 1])[1]
+    with image_col:
         st.image(
             "assets/smbb_domain.png",
             caption=(

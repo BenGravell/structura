@@ -35,9 +35,9 @@ def run():
 
     tools_column, monitor_column = st.columns([2, 4])
     with tools_column:
-        tools_container = st.container(border=True)
+        tools_container = st.container(height=300, border=True)
     with monitor_column:
-        monitor_container = st.container(border=True)
+        monitor_container = st.container(height=300, border=True)
 
     with tools_container:
         st.subheader("Design Tools", anchor=False)

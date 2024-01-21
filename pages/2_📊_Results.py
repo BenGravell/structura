@@ -30,30 +30,31 @@ def run():
         cols = st.columns(2)
 
         with cols[0]:
-            with st.form("3d_model_options"):
-                st.subheader("3D Model Options", anchor=False)
-                use_cmap = st.toggle(
-                    "Use Colormap",
-                    value=True,
-                    help=(
-                        "If disabled, the 3D model will just be a solid color. If enabled, the 3D model will be colored"
-                        " by thickness with the same colormap as in the 2D image."
-                    ),
-                )
-                show_edges = st.toggle("Show Edges")
-                thickness_resolution = st.select_slider(
-                    "Thickness Resolution",
-                    options=[2, 5, 10, 20, 50, 100],
-                    value=10,
-                    help=(
-                        "Number of levels in the thickness for voxelization. Higher numbers will yield a more refined"
-                        " voxelization, but will take longer to render."
-                    ),
-                )
-                st.form_submit_button("Update 3D Model Options")
+            with st.container(height=320, border=True):
+                with st.form("3d_model_options", border=False):
+                    st.subheader("3D Model Options", anchor=False)
+                    use_cmap = st.toggle(
+                        "Use Colormap",
+                        value=True,
+                        help=(
+                            "If disabled, the 3D model will just be a solid color. If enabled, the 3D model will be colored"
+                            " by thickness with the same colormap as in the 2D image."
+                        ),
+                    )
+                    show_edges = st.toggle("Show Edges")
+                    thickness_resolution = st.select_slider(
+                        "Thickness Resolution",
+                        options=[2, 5, 10, 20, 50, 100],
+                        value=10,
+                        help=(
+                            "Number of levels in the thickness for voxelization. Higher numbers will yield a more refined"
+                            " voxelization, but will take longer to render."
+                        ),
+                    )
+                    st.form_submit_button("Update 3D Model Options")
 
         with cols[1]:
-            with st.container(border=True):
+            with st.container(height=320, border=True):
                 st.subheader("3D Viewer Controls", anchor=False)
                 pyvista_3d_viewer_controls_df = pd.DataFrame.from_dict(
                     {
@@ -77,7 +78,8 @@ def run():
                 )
 
         if (plotter := st.session_state.get("plotter")) is not None:
-            stpyvista.stpyvista(plotter, horizontal_align="center", panel_kwargs={"orientation_widget": True})
+            with st.container(height=900, border=True):
+                stpyvista.stpyvista(plotter, horizontal_align="center", panel_kwargs={"orientation_widget": True})
     else:
         st.info("No structure design found. Try using the tools on the Structure Design page to create a design!")
 

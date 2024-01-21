@@ -75,8 +75,8 @@ def get_options_from_ui() -> Options:
                         "Density Initialization Method",
                         options=["continue", "random", "constant"],
                         help=(
-                            'The option "continue" will continue from the existing solution if available, otherwise will use'
-                            ' "random".'
+                            'The option "continue" will continue from the existing solution if available, otherwise'
+                            ' will use "random".'
                         ),
                     )
 
@@ -110,9 +110,9 @@ def get_options_from_ui() -> Options:
                         value=2.0,
                         step=0.1,
                         help=(
-                            "Power to which to raise density design variables. Higher values discourage intermediate values"
-                            " more heavily, but tend to lock the optimizer into local minima with fine structural details that"
-                            " are globally suboptimal."
+                            "Power to which to raise density design variables. Higher values discourage intermediate"
+                            " values more heavily, but tend to lock the optimizer into local minima with fine"
+                            " structural details that are globally suboptimal."
                         ),
                     )
 
@@ -142,7 +142,9 @@ def get_options_from_ui() -> Options:
                     cmap = cm.get_cmap(cmap_name)
 
                     upscale_factor = st.select_slider("Upscale Factor", options=[1, 2, 4, 8, 16, 32, 64], value=4)
-                    upscale_method = st.selectbox("Upscaling Method", options=["NEAREST", "BILINEAR", "BICUBIC", "LANCZOS"])
+                    upscale_method = st.selectbox(
+                        "Upscaling Method", options=["NEAREST", "BILINEAR", "BICUBIC", "LANCZOS"]
+                    )
 
             st.divider()
             st.form_submit_button("Update Options", on_click=options_update_button_callback)

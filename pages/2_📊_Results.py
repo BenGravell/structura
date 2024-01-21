@@ -37,8 +37,8 @@ def run():
                         "Use Colormap",
                         value=True,
                         help=(
-                            "If disabled, the 3D model will just be a solid color. If enabled, the 3D model will be colored"
-                            " by thickness with the same colormap as in the 2D image."
+                            "If disabled, the 3D model will just be a solid color. If enabled, the 3D model will be"
+                            " colored by thickness with the same colormap as in the 2D image."
                         ),
                     )
                     show_edges = st.toggle("Show Edges")
@@ -47,8 +47,8 @@ def run():
                         options=[2, 5, 10, 20, 50, 100],
                         value=10,
                         help=(
-                            "Number of levels in the thickness for voxelization. Higher numbers will yield a more refined"
-                            " voxelization, but will take longer to render."
+                            "Number of levels in the thickness for voxelization. Higher numbers will yield a more"
+                            " refined voxelization, but will take longer to render."
                         ),
                     )
                     st.form_submit_button("Update 3D Model Options")
